@@ -1,0 +1,261 @@
+/*Chez Session Bistro styles*/
+:root {
+    --bg: #fbf7f2;
+    --text: #2b2118;
+    --muted: #5e4b3c;
+    --accent: #7a2e1d;
+    --accent-dark: #561e12;
+    --card: #ffffff;
+    --border: #e3d6c8;
+    --focus: #1a5fb4;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    color: var(--text);
+    background: var(--bg);
+}
+
+.skip-link {
+    position: absolute;
+    left: -999px;
+    top: 0;
+    padding: 0.5rem 1rem;
+    background: var(--accent);
+    color: #fff;
+}
+
+.skip-link:focus {
+    left: 0.5rem;
+    top: 0.5rem;
+}
+
+.site-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--accent);
+    color: #fff;
+}
+
+.brand {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.site-header ul {
+    display: flex;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.site-header a {
+    color: #fff;
+}
+
+.site-header a[aria-current="page"] {
+    font-weight: bold;
+    text-decoration-thickness: 3px;
+}
+
+main {
+    max-width: 60rem;
+    margin: 0 auto;
+    padding: 1.25rem;
+}
+
+h1 {
+    margin-top: 0.5rem;
+    color: var(--accent-dark);
+}
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.card h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    color: var(--accent-dark);
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1rem;
+}
+
+.field {
+    margin-bottom: 1rem;
+}
+
+.field > label,
+legend {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.35rem;
+}
+
+fieldset {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+}
+
+select {
+    width: 100%;
+    max-width: 22rem;
+    padding: 0.5rem;
+    font: inherit;
+    border: 1px solid var(--muted);
+    border-radius: 4px;
+    background: #fff;
+}
+
+.radio {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-right: 1.25rem;
+}
+
+input[type="radio"] {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+button,
+.button {
+    display: inline-block;
+    padding: 0.6rem 1.2rem;
+    font: inherit;
+    color: #fff;
+    background: var(--accent);
+    border: 2px solid var(--accent);
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+button:hover,
+.button:hover {
+    background: var(--accent-dark);
+}
+
+.button.secondary {
+    color: var(--accent);
+    background: transparent;
+}
+
+.button.secondary:hover {
+    color: #fff;
+    background: var(--accent-dark);
+}
+
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+}
+
+.receipt {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.35rem 1rem;
+    margin: 0;
+}
+
+.receipt dt {
+    font-weight: bold;
+}
+
+.receipt dd {
+    margin: 0;
+}
+
+.prices {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.prices th {
+    text-align: left;
+}
+
+.prices td {
+    text-align: right;
+}
+
+.prices th,
+.prices td {
+    padding: 0.35rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.prices tfoot th,
+.prices tfoot td {
+    font-weight: bold;
+    border-bottom: none;
+}
+
+.note {
+    color: var(--muted);
+    font-style: italic;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+.site-footer {
+    text-align: center;
+    color: var(--muted);
+    padding: 1rem;
+}
+
+@media (max-width: 30rem) {
+    main {
+        padding: 0.75rem;
+    }
+
+    .radio {
+        display: flex;
+        margin-bottom: 0.35rem;
+    }
+
+    .actions > * {
+        flex: 1 1 100%;
+        text-align: center;
+    }
+}

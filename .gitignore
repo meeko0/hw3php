@@ -1,0 +1,7 @@
+#submission documents contain the identity header (name, Panther ID); keep them out of the public repo
+submission/
+
+#Word lock files and OS clutter
+~$*
+.DS_Store
+Thumbs.db
