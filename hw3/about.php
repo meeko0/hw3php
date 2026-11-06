@@ -27,6 +27,7 @@
                 <li><code>index.php</code> shows the order form. Saved choices are restored with the <code>selected</code> and <code>checked</code> attributes.</li>
                 <li><code>process_order.php</code> calls <code>order()</code>, which copies the posted values into <code>$_SESSION</code>, then shows the receipt, feedback and price.</li>
                 <li><code>forget_order.php</code> removes the three order keys, destroys the session and redirects back to the form.</li>
+                <li><code>next_customer.php</code> does the same reset and also expires the session cookie, so the next person on a shared computer starts a brand-new session.</li>
             </ol>
             <p>The order is stored on the server in a PHP session. The browser only keeps the session ID cookie.</p>
         </section>

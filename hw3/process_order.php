@@ -1,7 +1,6 @@
 <?php
 require_once 'order_functions.php'; //starts the session before any output
-order(); //save the posted choices into $_SESSION
-$note = sizeNote();
+$orderSummary = order(); //saves the posted choices into $_SESSION; values in the summary are already escaped
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -27,47 +26,27 @@ $note = sizeNote();
         <h1>Your Receipt</h1>
 
         <div class="cards">
-            <section class="card" aria-labelledby="receipt-heading">
-                <h2 id="receipt-heading">Receipt</h2>
-                <dl class="receipt">
-                    <dt>Dessert</dt>
-                    <dd><?= e(sessionValue('dessert')) ?></dd>
-                    <dt>Drink</dt>
-                    <dd><?= e(sessionValue('drink')) ?></dd>
-                    <dt>Drink size</dt>
-                    <dd><?= e(sessionValue('drinkSize')) ?></dd>
-                </dl>
+            <section class="card receipt-card" aria-labelledby="receipt-heading">
+                <h2 id="receipt-heading">Stored order</h2>
+                <p><?= $orderSummary ?></p>
             </section>
 
-            <section class="card" aria-labelledby="feedback-heading">
-                <h2 id="feedback-heading">Chef's Feedback</h2>
-                <p><?= e(pairingFeedback()) ?></p>
-                <?php if ($note !== ''): ?>
-                <p class="note"><?= e($note) ?></p>
-                <?php endif; ?>
+            <section class="card insight-card" aria-labelledby="feedback-heading">
+                <h2 id="feedback-heading">Order feedback</h2>
+                <p><?= e(completionMessage()) ?></p>
+                <p class="insight-note"><?= e(pairingSuggestion()) ?></p>
             </section>
 
-            <section class="card" aria-labelledby="price-heading">
-                <h2 id="price-heading">Price</h2>
-                <table class="prices">
-                    <caption class="visually-hidden">Price breakdown</caption>
-                    <tbody>
-                        <tr>
-                            <th scope="row">Dessert</th>
-                            <td><?= e(formatPrice(dessertPrice())) ?></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Drink</th>
-                            <td><?= e(formatPrice(drinkPrice())) ?></td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <th scope="row">Total</th>
-                            <td><?= e(formatPrice(orderTotal())) ?></td>
-                        </tr>
-                    </tfoot>
-                </table>
+            <section class="card insight-card pricing-grid" aria-label="Pricing">
+                <div>
+                    <h2>Estimated total</h2>
+                    <p class="price-figure"><?= e(formattedTotal()) ?></p>
+                </div>
+                <div>
+                    <h2>Order profile</h2>
+                    <p><?= e(orderProfile()) ?></p>
+                </div>
+                <p class="insight-note full-width-note"><?= e(pricingNote()) ?></p>
             </section>
         </div>
 

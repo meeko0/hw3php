@@ -6,46 +6,52 @@ const NOT_SELECTED = '(not selected)';
 
 //menu: name => base price in dollars
 const DESSERTS = [
-    'Cheesecake'     => 4.50,
-    'Chocolate Cake' => 4.25,
-    'Carrot Cake'    => 3.95,
-    'Tiramisu'       => 5.25,
+    'Cheesecake'     => 4.25,
+    'Chocolate Cake' => 4.50,
+    'Carrot Cake'    => 4.00,
+    'Tiramisu'       => 4.75,
 ];
 
 const DRINKS = [
     'Coffee'        => 2.25,
     'Hot Chocolate' => 2.75,
-    'Root Beer'     => 1.95,
-    'Tea'           => 1.75,
-    'Milk'          => 1.50,
+    'Root Beer'     => 2.50,
+    'Tea'           => 2.00,
+    'Milk'          => 1.75,
 ];
 
-//size => multiplier applied to the drink base price
+//size => upcharge added to the drink base price
 const DRINK_SIZES = [
-    'Small'  => 1.00,
-    'Medium' => 1.25,
-    'Large'  => 1.50,
+    'Small'  => 0.00,
+    'Medium' => 0.60,
+    'Large'  => 1.15,
 ];
 
-//turn missing, empty, 'none' or unknown values into the fallback text
-function cleanChoice($value, array $allowed): string
+const ORDER_KEYS = ['dessert', 'drink', 'drinkSize'];
+
+//turn missing, empty, 'none' or off-menu values into the fallback text
+function cleanChoice($value, array $menu): string
 {
     $value = is_string($value) ? trim($value) : '';
-    if ($value === '' || $value === 'none' || !array_key_exists($value, $allowed)) {
+    if ($value === '' || $value === 'none' || !array_key_exists($value, $menu)) {
         return NOT_SELECTED;
     }
     return $value;
 }
 
-//copy the posted form values into the session (only on POST so a refresh/GET keeps the last order)
-function order(): void
+//save the posted choices into the session and return the receipt summary
+function order(): string
 {
-    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
-        return;
+    //only a POST changes the order, so refreshing the receipt with GET keeps the saved choices
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+        $_SESSION['dessert']   = cleanChoice($_POST['dessert'] ?? 'none', DESSERTS);
+        $_SESSION['drink']     = cleanChoice($_POST['drink'] ?? 'none', DRINKS);
+        $_SESSION['drinkSize'] = cleanChoice($_POST['drinkSize'] ?? '', DRINK_SIZES);
     }
-    $_SESSION['dessert']   = cleanChoice($_POST['dessert'] ?? '', DESSERTS);
-    $_SESSION['drink']     = cleanChoice($_POST['drink'] ?? '', DRINKS);
-    $_SESSION['drinkSize'] = cleanChoice($_POST['drinkSize'] ?? '', DRINK_SIZES);
+
+    return 'Dessert: ' . e(sessionValue('dessert')) . '<br>'
+        . 'Drink: ' . e(sessionValue('drink')) . '<br>'
+        . 'Drink size: ' . e(sessionValue('drinkSize'));
 }
 
 //read one session value with the fallback text
@@ -59,20 +65,50 @@ function isSelected(string $key): bool
     return sessionValue($key) !== NOT_SELECTED;
 }
 
-//restore helpers: return the attribute that re-selects the saved choice on index.php
-function dessertSelected(string $option): string
+//progress helpers
+function completedChoiceCount(): int
 {
-    return sessionValue('dessert') === $option ? 'selected' : '';
+    $count = 0;
+    foreach (ORDER_KEYS as $key) {
+        if (isSelected($key)) {
+            $count++;
+        }
+    }
+    return $count;
 }
 
-function drinkSelected(string $option): string
+function completionMessage(): string
 {
-    return sessionValue('drink') === $option ? 'selected' : '';
+    $count = completedChoiceCount();
+
+    if ($count === 3) {
+        return 'Your order is complete and ready to submit.';
+    }
+    if ($count === 0) {
+        return 'Start by choosing a dessert, a drink, and a size.';
+    }
+    return "You have completed {$count} of 3 order choices.";
 }
 
-function drinkSizeSelected(string $option): string
+//pairing helper
+const PAIRINGS = [
+    'Cheesecake|Coffee'   => 'Cheesecake and coffee make a classic cafe combo.',
+    'Chocolate Cake|Milk' => 'Chocolate cake and milk are a rich, familiar pairing.',
+    'Tiramisu|Coffee'     => 'Tiramisu and coffee double up on the espresso flavor.',
+    'Carrot Cake|Tea'     => 'Carrot cake and tea make a lighter, balanced combination.',
+];
+
+function pairingSuggestion(): string
 {
-    return sessionValue('drinkSize') === $option ? 'checked' : '';
+    if (!isSelected('dessert') || !isSelected('drink')) {
+        return 'Select both a dessert and a drink to see a suggested pairing.';
+    }
+
+    $dessert = sessionValue('dessert');
+    $drink = sessionValue('drink');
+
+    return 'Suggested pairing: '
+        . (PAIRINGS["$dessert|$drink"] ?? "$dessert with $drink gives the order a custom bistro feel.");
 }
 
 //pricing helpers
@@ -83,75 +119,64 @@ function dessertPrice(): float
 
 function drinkPrice(): float
 {
-    $base = DRINKS[sessionValue('drink')] ?? 0.0;
-    $multiplier = DRINK_SIZES[sessionValue('drinkSize')] ?? 1.0; //no size chosen = base (small) price
-    return round($base * $multiplier, 2);
+    $base = DRINKS[sessionValue('drink')] ?? null;
+    if ($base === null) {
+        return 0.0; //a size on its own adds nothing
+    }
+    return $base + (DRINK_SIZES[sessionValue('drinkSize')] ?? 0.0);
 }
 
-function orderTotal(): float
+function estimatedTotal(): float
 {
     return round(dessertPrice() + drinkPrice(), 2);
 }
 
-function formatPrice(float $amount): string
+function formattedTotal(): string
 {
-    return '$' . number_format($amount, 2);
+    return '$' . number_format(estimatedTotal(), 2);
 }
 
-//pairing helpers
-const PAIRINGS = [
-    'Cheesecake'     => ['Coffee', 'Tea'],
-    'Chocolate Cake' => ['Milk', 'Coffee'],
-    'Carrot Cake'    => ['Tea', 'Coffee'],
-    'Tiramisu'       => ['Coffee', 'Hot Chocolate'],
-];
-
-function isGoodPairing(string $dessert, string $drink): bool
-{
-    return in_array($drink, PAIRINGS[$dessert] ?? [], true);
-}
-
-//one friendly feedback sentence based on what was (or was not) chosen
-function pairingFeedback(): string
-{
-    $dessert = sessionValue('dessert');
-    $drink = sessionValue('drink');
-
-    if (!isSelected('dessert') && !isSelected('drink')) {
-        return 'You have not chosen anything yet. Go back and pick a dessert or a drink.';
-    }
-    if (!isSelected('dessert')) {
-        return "Just a $drink today? Try it with " . suggestDessert($drink) . ' next time.';
-    }
-    if (!isSelected('drink')) {
-        return "$dessert on its own is great, but it pairs well with " . PAIRINGS[$dessert][0] . '.';
-    }
-    if (isGoodPairing($dessert, $drink)) {
-        return "$dessert with $drink is a chef-approved pairing.";
-    }
-    return "$dessert with $drink is a bold choice. Our chef suggests " . PAIRINGS[$dessert][0] . ' instead.';
-}
-
-function suggestDessert(string $drink): string
-{
-    foreach (PAIRINGS as $dessert => $drinks) {
-        if (in_array($drink, $drinks, true)) {
-            return $dessert;
-        }
-    }
-    return 'Cheesecake';
-}
-
-//extra note shown when a drink was chosen without a size, or a size without a drink
-function sizeNote(): string
+function pricingNote(): string
 {
     if (isSelected('drink') && !isSelected('drinkSize')) {
-        return 'No size was chosen, so the drink is priced as Small.';
+        return 'Choose a drink size to finalize the drink price.';
     }
-    if (!isSelected('drink') && isSelected('drinkSize')) {
-        return 'A size was chosen without a drink, so no drink was added.';
+    if (completedChoiceCount() === 0) {
+        return 'Your estimated total will update as soon as you begin building the order.';
     }
-    return '';
+    return 'The estimate is based on the current dessert, drink, and drink size selections.';
+}
+
+function orderProfile(): string
+{
+    $total = estimatedTotal();
+
+    if ($total >= 6.5) {
+        return 'Full cafe combo';
+    }
+    if ($total >= 4.0) {
+        return 'Balanced dessert break';
+    }
+    if ($total > 0) {
+        return 'Light snack order';
+    }
+    return 'No selections yet';
+}
+
+//restore helpers: dropdowns get 'selected', radios get 'checked'
+function dessertSelected(string $dessert): string
+{
+    return sessionValue('dessert') === $dessert ? 'selected' : '';
+}
+
+function drinkSelected(string $drink): string
+{
+    return sessionValue('drink') === $drink ? 'selected' : '';
+}
+
+function drinkSizeSelected(string $drinkSize): string
+{
+    return sessionValue('drinkSize') === $drinkSize ? 'checked' : '';
 }
 
 //escape for HTML output

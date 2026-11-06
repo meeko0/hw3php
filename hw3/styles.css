@@ -199,43 +199,56 @@ input:focus-visible {
     margin: 0;
 }
 
-.prices {
-    width: 100%;
-    border-collapse: collapse;
+.layout {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: 1rem;
+    align-items: start;
 }
 
-.prices th {
-    text-align: left;
+.receipt-card p {
+    margin: 0;
+    font-size: 1.1rem;
+    line-height: 1.8;
 }
 
-.prices td {
-    text-align: right;
-}
-
-.prices th,
-.prices td {
-    padding: 0.35rem 0;
-    border-bottom: 1px solid var(--border);
-}
-
-.prices tfoot th,
-.prices tfoot td {
-    font-weight: bold;
-    border-bottom: none;
-}
-
-.note {
+.insight-note {
     color: var(--muted);
     font-style: italic;
 }
 
-.visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
+.pricing-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 1rem;
+}
+
+.price-figure {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--accent);
+}
+
+.full-width-note {
+    grid-column: 1 / -1;
+    margin-bottom: 0;
+}
+
+.handoff {
+    text-align: center;
+}
+
+.status {
+    padding: 0.6rem 1rem;
+    border-left: 4px solid var(--accent);
+    background: var(--card);
+}
+
+@media (max-width: 45rem) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
 }
 
 .site-footer {

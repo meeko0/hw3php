@@ -1,10 +1,9 @@
-# Lab prototype (U1)
+# Lab notes (U1 / U2)
 
-1. Save a copy of the lab guide page into this folder (for example `lab/guide.html`).
-2. Open its JS, search for `localStorage`, and confirm the order key and the form and receipt selectors at the top of `next-customer.js` (currently `chezSessionLabOrder`, `form`, `#receipt`).
-3. Add this line just before `</body>` in the saved page:
+This project uses PHP, HTML and CSS only.
 
-```html
-<!--U1 handoff: Next customer button, clears only the order key-->
-<script src="next-customer.js" defer></script>
-```
+The lab guide keeps its order in the browser's `localStorage`. Clearing a single localStorage key needs JavaScript, so the U1 "Next customer" prototype is built on the server side instead: [`hw3/next_customer.php`](../hw3/next_customer.php). It clears the order, destroys the session and expires the PHPSESSID cookie. The button is a plain HTML form on `hw3/index.php`.
+
+U2 is PHP pseudocode in [`evidence/u1_u2_sketches.md`](../evidence/u1_u2_sketches.md).
+
+To do: save a copy of the lab guide page here as `lab/guide.html` (unmodified, for reference), and record its real localStorage key names in `evidence/u1_u2_sketches.md`.
